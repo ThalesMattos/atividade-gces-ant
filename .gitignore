@@ -1,0 +1,67 @@
+# ============================================================
+# Artefatos gerados pelo Apache Ant
+# ============================================================
+ant-demo/build/
+ant-demo/dist/
+
+# Arquivos .class compilados
+*.class
+
+# Arquivos JAR/WAR/EAR gerados (exceto dependências em lib/)
+*.jar
+*.war
+*.ear
+!ant-demo/lib/*.jar
+
+# ============================================================
+# IDEs
+# ============================================================
+
+# IntelliJ IDEA
+.idea/
+*.iml
+*.iws
+*.ipr
+out/
+
+# Eclipse
+.classpath
+.project
+.settings/
+bin/
+
+# VS Code
+.vscode/
+
+# NetBeans
+nbproject/private/
+nbbuild/
+nbdist/
+nbactions.xml
+nb-configuration.xml
+
+# ============================================================
+# Sistema Operacional
+# ============================================================
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Linux
+*~
+
+# ============================================================
+# Logs e temporários
+# ============================================================
+*.log
+*.tmp
+*.swp
+*.bak

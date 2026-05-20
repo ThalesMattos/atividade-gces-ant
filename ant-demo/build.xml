@@ -1,0 +1,216 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  build.xml — Script de build do Apache Ant
+  ==========================================
+  Targets disponíveis:
+    ant clean    → remove todos os artefatos gerados
+    ant compile  → compila os fontes Java em build/classes
+    ant jar      → empacota o JAR executável em dist/
+    ant test     → compila e executa os testes JUnit (gera XML)
+    ant report   → gera relatório HTML dos testes em dist/reports/
+    ant javadoc  → gera documentação HTML em dist/docs/
+    ant inspect  → exibe manifesto e classes do JAR
+    ant all      → clean + compile + jar + javadoc (padrão)
+    ant run      → executa o JAR gerado
+-->
+<project name="ant-demo" default="all" basedir=".">
+
+  <!-- ============================================================
+       Propriedades globais do projeto
+       ============================================================ -->
+  <property name="src.dir"          value="src"/>
+  <property name="test.dir"         value="test"/>
+  <property name="lib.dir"          value="lib"/>
+  <property name="build.dir"        value="build"/>
+  <property name="classes.dir"      value="${build.dir}/classes"/>
+  <property name="test.classes.dir" value="${build.dir}/test-classes"/>
+  <property name="test.reports.dir" value="${build.dir}/test-reports"/>
+  <property name="dist.dir"         value="dist"/>
+  <property name="docs.dir"         value="${dist.dir}/docs"/>
+  <property name="jar.file"         value="${dist.dir}/ant-demo.jar"/>
+  <property name="main.class"       value="com.demo.Main"/>
+
+  <!-- Classpath: JAR da aplicação + bibliotecas externas (JUnit) -->
+  <path id="compile.classpath">
+    <fileset dir="${lib.dir}" includes="*.jar" erroronmissingdir="false"/>
+  </path>
+
+  <path id="test.classpath">
+    <path refid="compile.classpath"/>
+    <pathelement location="${classes.dir}"/>
+    <pathelement location="${test.classes.dir}"/>
+  </path>
+
+  <!-- ============================================================
+       Target: clean
+       Remove todos os arquivos gerados anteriormente.
+       Demonstra recompilação mínima — só recompila o necessário.
+       ============================================================ -->
+  <target name="clean" description="Remove artefatos gerados">
+    <echo message="[clean] Removendo diretórios de build e dist..."/>
+    <delete dir="${build.dir}"/>
+    <delete dir="${dist.dir}"/>
+    <echo message="[clean] Concluído."/>
+  </target>
+
+  <!-- ============================================================
+       Target: init
+       Cria a estrutura de diretórios necessária para o build.
+       ============================================================ -->
+  <target name="init" description="Cria diretórios de build">
+    <echo message="[init] Criando estrutura de diretórios..."/>
+    <mkdir dir="${classes.dir}"/>
+    <mkdir dir="${test.classes.dir}"/>
+    <mkdir dir="${test.reports.dir}"/>
+    <mkdir dir="${dist.dir}"/>
+    <mkdir dir="${docs.dir}"/>
+  </target>
+
+  <!-- ============================================================
+       Target: compile
+       Compila os fontes Java de src/ para build/classes/.
+       Depende de "init" — o Ant resolve dependências entre targets.
+       ============================================================ -->
+  <target name="compile" depends="init" description="Compila os fontes Java">
+    <echo message="[compile] Compilando fontes em ${src.dir}..."/>
+    <javac srcdir="${src.dir}"
+           destdir="${classes.dir}"
+           includeantruntime="false"
+           encoding="UTF-8"
+           debug="true">
+      <classpath refid="compile.classpath"/>
+    </javac>
+    <echo message="[compile] Compilação concluída."/>
+  </target>
+
+  <!-- ============================================================
+       Target: jar
+       Empacota os .class em um JAR executável em dist/.
+       O manifesto define a Main-Class para execução direta.
+       ============================================================ -->
+  <target name="jar" depends="compile" description="Gera o JAR executável">
+    <echo message="[jar] Gerando artefato ${jar.file}..."/>
+    <jar destfile="${jar.file}" basedir="${classes.dir}">
+      <manifest>
+        <attribute name="Main-Class" value="${main.class}"/>
+        <attribute name="Built-By"   value="${user.name}"/>
+        <attribute name="Build-Date" value="${TODAY}"/>
+        <attribute name="Version"    value="1.0.0"/>
+      </manifest>
+    </jar>
+    <echo message="[jar] Artefato gerado: ${jar.file}"/>
+  </target>
+
+  <!-- ============================================================
+       Target: test
+       Compila e executa os testes JUnit.
+       Requer lib/junit-*.jar e lib/hamcrest-*.jar em lib/.
+       ============================================================ -->
+  <target name="test" depends="compile" description="Executa testes JUnit">
+    <echo message="[test] Compilando fontes de teste em ${test.dir}..."/>
+    <javac srcdir="${test.dir}"
+           destdir="${test.classes.dir}"
+           includeantruntime="false"
+           encoding="UTF-8">
+      <classpath refid="test.classpath"/>
+    </javac>
+
+    <echo message="[test] Executando testes..."/>
+    <junit printsummary="yes" haltonfailure="yes" fork="true">
+      <classpath refid="test.classpath"/>
+      <formatter type="plain" usefile="false"/>
+      <formatter type="xml"/>
+      <batchtest todir="${test.reports.dir}">
+        <fileset dir="${test.classes.dir}" includes="**/*Test.class"/>
+      </batchtest>
+    </junit>
+    <echo message="[test] Testes concluídos. Relatórios em ${test.reports.dir}"/>
+  </target>
+
+  <!-- ============================================================
+       Target: javadoc
+       Gera documentação HTML a partir dos comentários /** */ nas
+       classes Java. O resultado fica em dist/docs/ — abrível
+       diretamente no navegador (dist/docs/index.html).
+       ============================================================ -->
+  <target name="javadoc" depends="init" description="Gera documentação Javadoc em dist/docs/">
+    <echo message="[javadoc] Gerando documentação em ${docs.dir}..."/>
+    <javadoc sourcepath="${src.dir}"
+             destdir="${docs.dir}"
+             packagenames="com.demo.*"
+             author="true"
+             version="true"
+             use="true"
+             windowtitle="Ant Demo — Documentação da API"
+             doctitle="&lt;h1&gt;Ant Demo — Seminário Build Tools&lt;/h1&gt;"
+             bottom="&lt;i&gt;Gerado automaticamente pelo Apache Ant&lt;/i&gt;"
+             encoding="UTF-8"
+             charset="UTF-8">
+      <classpath refid="compile.classpath"/>
+    </javadoc>
+    <echo message="[javadoc] Documentação gerada. Abra: ${docs.dir}/index.html"/>
+  </target>
+
+  <!-- ============================================================
+       Target: report
+       Converte os XMLs gerados pelo target "test" em relatório
+       HTML navegável em dist/reports/html/index.html.
+       Usa a task <junitreport> com o stylesheet padrão do Ant.
+       ============================================================ -->
+  <target name="report" depends="test" description="Gera relatório HTML dos testes em dist/reports/">
+    <echo message="[report] Gerando relatório HTML dos testes..."/>
+    <mkdir dir="${dist.dir}/reports/html"/>
+    <junitreport todir="${dist.dir}/reports">
+      <fileset dir="${test.reports.dir}">
+        <include name="TEST-*.xml"/>
+      </fileset>
+      <report format="frames" todir="${dist.dir}/reports/html"/>
+    </junitreport>
+    <echo message="[report] Relatório gerado. Abra: ${dist.dir}/reports/html/index.html"/>
+  </target>
+
+  <!-- ============================================================
+       Target: inspect
+       Exibe o manifesto e a lista de arquivos dentro do JAR,
+       demonstrando como "examinar o artefato resultante".
+       ============================================================ -->
+  <target name="inspect" depends="jar" description="Examina o conteúdo do JAR gerado">
+    <echo message=""/>
+    <echo message="=== MANIFESTO DE ${jar.file} ==="/>
+    <unzip src="${jar.file}" dest="${build.dir}/inspect-tmp">
+      <patternset includes="META-INF/MANIFEST.MF"/>
+    </unzip>
+    <loadfile property="manifest.content" srcFile="${build.dir}/inspect-tmp/META-INF/MANIFEST.MF"/>
+    <echo message="${manifest.content}"/>
+    <echo message="=== CLASSES EMPACOTADAS ==="/>
+    <zipfileset id="jar.contents" src="${jar.file}"/>
+    <pathconvert property="jar.files" refid="jar.contents" pathsep="${line.separator}  "/>
+    <echo message="  ${jar.files}"/>
+    <echo message=""/>
+  </target>
+
+  <!-- ============================================================
+       Target: run
+       Executa o JAR gerado pelo target "jar".
+       ============================================================ -->
+  <target name="run" depends="jar" description="Executa a aplicação">
+    <echo message="[run] Executando ${jar.file}..."/>
+    <echo message="-----------------------------------"/>
+    <java jar="${jar.file}" fork="true"/>
+    <echo message="-----------------------------------"/>
+  </target>
+
+  <!-- ============================================================
+       Target: all  (padrão)
+       Pipeline completo: clean → compile → jar → javadoc
+       ============================================================ -->
+  <target name="all" depends="clean,compile,jar,javadoc" description="Build completo: compile + jar + javadoc (padrão)">
+    <echo message=""/>
+    <echo message="=== BUILD CONCLUÍDO COM SUCESSO ==="/>
+    <echo message="Artefato JAR : ${jar.file}"/>
+    <echo message="Documentação : ${docs.dir}/index.html"/>
+    <echo message="Testes       : ant test | ant report"/>
+    <echo message="Execute com  : java -jar ${jar.file}"/>
+  </target>
+
+</project>
