@@ -1,5 +1,7 @@
 package com.demo;
 
+import java.util.Scanner;
+
 /**
  * Ponto de entrada da aplicação demonstrativa do Apache Ant.
  *
@@ -25,24 +27,46 @@ public class Main {
      * @param args argumentos de linha de comando (não utilizados)
      */
     public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+
         System.out.println("=== Demonstração Ant Build Tool ===\n");
 
         // --- Calculadora ---
         Calculator calc = new Calculator();
-        System.out.println(">> Calculadora:");
-        System.out.println("   150 + 75  = " + calc.add(150, 75));
-        System.out.println("   200 - 50  = " + calc.subtract(200, 50));
-        System.out.println("   12  × 8   = " + calc.multiply(12, 8));
-        System.out.printf("   100 ÷ 4   = %.1f%n", calc.divide(100, 4));
+        System.out.println(">> Calculadora");
+        System.out.print("   Digite o primeiro número inteiro : ");
+        int a = scanner.nextInt();
+        System.out.print("   Digite o segundo número inteiro  : ");
+        int b = scanner.nextInt();
+
+        System.out.println();
+        System.out.println("   " + a + " + " + b + " = " + calc.add(a, b));
+        System.out.println("   " + a + " - " + b + " = " + calc.subtract(a, b));
+        System.out.println("   " + a + " × " + b + " = " + calc.multiply(a, b));
+        if (b != 0) {
+            System.out.printf("   %d ÷ %d = %.2f%n", a, b, calc.divide(a, b));
+        } else {
+            System.out.println("   Divisão ignorada: segundo número é zero.");
+        }
 
         // --- StringUtils ---
         StringUtils utils = new StringUtils();
-        System.out.println("\n>> StringUtils:");
-        System.out.println("   capitalize('ant')      = " + utils.capitalize("ant"));
-        System.out.println("   repeat('build-', 3)    = " + utils.repeat("build-", 3));
-        System.out.println("   isPalindrome('arara')  = " + utils.isPalindrome("arara"));
-        System.out.println("   isPalindrome('java')   = " + utils.isPalindrome("java"));
+        scanner.nextLine(); // consumir quebra de linha pendente
+        System.out.println("\n>> StringUtils");
+        System.out.print("   Digite uma palavra para capitalizar      : ");
+        String word = scanner.nextLine().trim();
+        System.out.print("   Quantas vezes deseja repeti-la?          : ");
+        int times = scanner.nextInt();
+        scanner.nextLine();
+        System.out.print("   Digite uma frase para testar palíndromo  : ");
+        String phrase = scanner.nextLine().trim();
+
+        System.out.println();
+        System.out.println("   capitalize(\"" + word + "\")          = " + utils.capitalize(word));
+        System.out.println("   repeat(\"" + word + "\", " + times + ")           = " + utils.repeat(word, times));
+        System.out.println("   isPalindrome(\"" + phrase + "\") = " + utils.isPalindrome(phrase));
 
         System.out.println("\nBuild realizado com Apache Ant!");
+        scanner.close();
     }
 }

@@ -83,6 +83,7 @@ Ou diretamente pelo Java, sem precisar do Ant:
 ```bash
 java -jar dist/ant-demo.jar
 ```
+A aplicação solicitará entradas interativas: dois números inteiros para a `Calculator` e uma palavra/frase para a `StringUtils`.
 
 ### 3. Rodar os testes + relatório HTML
 ```bash
